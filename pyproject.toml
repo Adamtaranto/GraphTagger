@@ -39,6 +39,8 @@ repository = "https://github.com/RolandFaure/compute_coverage"
 map2gfa = "graphtagger.map2gfa:main"
 csv2gfa = "graphtagger.csv2gfa:main"
 mos2gfa = "graphtagger.mos2gfa:main"
+fa2gfa = "graphtagger.fa2gfa:main"
+tel2bed = "graphtagger.tel2bed:main"
 
 
 # Create and push tags
