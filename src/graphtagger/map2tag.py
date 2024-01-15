@@ -3,8 +3,6 @@
 
 import sys
 import argparse
-import gzip
-import re
 import os
 
 
@@ -108,6 +106,7 @@ def main():
         + " > "
         + paffile
     )
+    # Note: Run as subprocess and handle stdin and stderr streams
     if os.system(command) != 0:
         print("ERROR: minimap2 failed while running: ", command)
         sys.exit(1)
@@ -135,6 +134,8 @@ def main():
         g = open(output, "w")
         for line in f:
             if line.startswith("S"):
+                # Note: need to rescue existing tags, update DP if exists, append all tags
+                # otherwise could end up with multiple DP tags
                 depth = 0
                 contig = line.split("\t")[1]
                 if contig in contig2depth:
