@@ -1,5 +1,5 @@
-#author: Roland Faure
-#small python script to take an assembly (fasta or gfa) and output an assembly in the same format with depth information
+# author: Roland Faure
+# small python script to take an assembly (fasta or gfa) and output an assembly in the same format with depth information
 
 import sys
 import argparse
@@ -10,17 +10,43 @@ import os
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Add depth information to an assembly")
-    parser.add_argument("-i", "--input", help="Input assembly (fasta or gfa)", required=True)
-    parser.add_argument("-r", "--reads", help="Reads used to generate the assembly (fasta or fastq, can be gzipped)", required=True)
-    parser.add_argument("-o", "--output", help="Output assembly (same format as input)", required=True)
-    parser.add_argument("-t", "--threads", help="Number of threads to use [1]", required=False, default=1)
-    parser.add_argument("-x", "--preset", help="Minimap2 preset to use [map-ont]", required=False, default="map-ont")
-    parser.add_argument("--minimap2", help="path to minimap2 executable [minimap2]", required=False, default="minimap2")
+    parser.add_argument(
+        "-i", "--input", help="Input assembly (fasta or gfa)", required=True
+    )
+    parser.add_argument(
+        "-r",
+        "--reads",
+        help="Reads used to generate the assembly (fasta or fastq, can be gzipped)",
+        required=True,
+    )
+    parser.add_argument(
+        "-o", "--output", help="Output assembly (same format as input)", required=True
+    )
+    parser.add_argument(
+        "-t",
+        "--threads",
+        help="Number of threads to use [1]",
+        required=False,
+        default=1,
+    )
+    parser.add_argument(
+        "-x",
+        "--preset",
+        help="Minimap2 preset to use [map-ont]",
+        required=False,
+        default="map-ont",
+    )
+    parser.add_argument(
+        "--minimap2",
+        help="path to minimap2 executable [minimap2]",
+        required=False,
+        default="minimap2",
+    )
     args = parser.parse_args()
     return args
 
-def main():
 
+def main():
     args = parse_args()
 
     minimap = args.minimap2
@@ -31,23 +57,27 @@ def main():
     output = args.output
     is_gfa = False
 
-    #check the minimap2 dependency
+    # check the minimap2 dependency
     command = args.minimap2 + " --version"
     if os.system(command) != 0:
-        print("ERROR: minimap2 not found with path: ", args.minimap2, "\nPlease specify the path to minimap2 with the --minimap2 option")
+        print(
+            "ERROR: minimap2 not found with path: ",
+            args.minimap2,
+            "\nPlease specify the path to minimap2 with the --minimap2 option",
+        )
         sys.exit(1)
 
-    #check the input assembly
+    # check the input assembly
     if not os.path.isfile(assembly):
         print("ERROR: input assembly not found")
         sys.exit(1)
-    
-    #check the input reads
+
+    # check the input reads
     if not os.path.isfile(reads):
         print("ERROR: input reads not found")
         sys.exit(1)
 
-    #if the assembly is in gfa format, convert it to fasta
+    # if the assembly is in gfa format, convert it to fasta
     if assembly.endswith(".gfa"):
         is_gfa = True
         fasta = assembly + ".fasta"
@@ -62,19 +92,31 @@ def main():
         f.close()
         assembly = fasta
 
-    #now we can run minimap2
+    # now we can run minimap2
     print("Running minimap2")
     paffile = output + ".tmp.paf"
-    command = minimap + " -t " + str(args.threads) + " --secondary=no -x " + args.preset + " " + assembly + " " + reads + " > " + paffile
+    command = (
+        minimap
+        + " -t "
+        + str(args.threads)
+        + " --secondary=no -x "
+        + args.preset
+        + " "
+        + assembly
+        + " "
+        + reads
+        + " > "
+        + paffile
+    )
     if os.system(command) != 0:
         print("ERROR: minimap2 failed while running: ", command)
         sys.exit(1)
-    
-    #now we can parse the paf file and determine the coverage of each contig
+
+    # now we can parse the paf file and determine the coverage of each contig
     print("Parsing minimap2 output")
     contig2depth = {}
     f = open(paffile, "r")
-    for line in f :
+    for line in f:
         ls = line.split("\t")
         if len(ls) < 11:
             continue
@@ -84,9 +126,9 @@ def main():
         end = int(ls[8])
         if contig not in contig2depth:
             contig2depth[contig] = 0
-        contig2depth[contig] += float(end - start)/float(length_of_contig)
+        contig2depth[contig] += float(end - start) / float(length_of_contig)
 
-    #now we can write the output
+    # now we can write the output
     print("Writing output")
     if is_gfa:
         f = open(args.input, "r")
@@ -117,13 +159,11 @@ def main():
         f.close()
         g.close()
 
-    #remove the temporary paf file
+    # remove the temporary paf file
     os.remove(paffile)
 
     print("Done")
 
+
 if __name__ == "__main__":
     main()
-
-    
-
