@@ -1,0 +1,60 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "GraphTagger"
+authors = [
+    { name = "Roland Faure", email = "roland.faure@irisa.fr" },
+    { name = "Adam Taranto", email = "adam.p.taranto@gmail.com" },
+]
+
+description = "Add or update custom tags in a assembly graph (.gfa) file."
+readme = "README.md"
+requires-python = ">=3.7"
+license = { text = "GPL" }
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "License :: OSI Approved :: GNU General Public License (GPL)",
+]
+
+dynamic = ["version", "dependencies"]
+
+[tool.setuptools_scm]
+write_to = "src/graphtagger/_version.py"
+
+[tool.setuptools.dynamic]
+#version = { attr = "graphtagger.__version__" }
+dependencies = { file = "requirements.txt" }
+
+[project.urls]
+homepage = "https://github.com/RolandFaure/compute_coverage"
+documentation = "https://github.com/RolandFaure/compute_coverage"
+repository = "https://github.com/RolandFaure/compute_coverage"
+
+[project.scripts]
+map2gfa = "graphtagger.map2gfa:main"
+csv2gfa = "graphtagger.csv2gfa:main"
+mos2gfa = "graphtagger.mos2gfa:main"
+
+
+# Create and push tags
+# git tag -a v0.0.4 
+# git push origin v0.0.4
+
+# Check what setuptools_scm thinks the current version is and create _version.py
+# git describe
+# python -m setuptools_scm
+# python setup.py --version
+
+# Build
+# python3 -m pip install --upgrade build && python3 -m build
+# OR
+# Build sdist
+# python setup.py sdist 
+
+# Push to pypi
+# twine upload dist/*
