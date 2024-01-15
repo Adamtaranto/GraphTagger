@@ -10,10 +10,29 @@ See the [GFA-Spec](https://gfa-spec.github.io/GFA-spec/).
 
 **map2gfa**: Uses Minimap2 to map reads to the assembly and approximates the coverage of each contig. Updates the `DP` depth tag.
 
-**csv2gfa**: Adds or updates gfa segment tags from a CSV. 
+[DEV] **csv2gfa**: Adds or updates gfa segment tags from a CSV. 
 Lines have the format `Segment`,`Tag`,`Type`,`Value`.
 
-**mos2gfa**: Reads depth info from a [MosDepth](https://github.com/brentp/mosdepth) summary.txt file and updates `DP` tags in a corresponding `GFA`.
+[DEV] **mos2gfa**: Reads depth info from a [MosDepth](https://github.com/brentp/mosdepth) summary.txt file and updates `DP` tags in a corresponding `GFA`.
+
+**fa2gfa**: Convert FASTA to GFA format. Produces Segment records for each FASTA record. Adds `LN` tags.
+
+**tel2bed**: Quick annotation of telomeric repeat runs. Input: FASTA file, Telomeric motif (i.e. TTAGGG), min repeat count; Output: BED file.
+
+### Converting from GFA to FASTA
+
+**Support long sequence names**
+```bash
+awk '/^S/{print ">"$2; printf "%s", $3 | "fold -w 80"; close("fold -w 80"); print ""}' in.gfa > out.fa
+```
+
+**Include GFA tags in FASTA header line**
+
+If you also want to preserve the GFA segment tags (i.e. segment length `LN`, or depth `DP`) in the FASTA description you can append them to the headers:
+
+```bash
+awk '/^S/{header=">"$2; for(i=4; i<=NF; i++) {header=header" "$i}; print header; printf "%s", $3 | "fold -w 80"; close("fold -w 80"); print ""}' in.gfa > out.fa
+```
 
 ## Usage
 
