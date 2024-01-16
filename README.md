@@ -36,12 +36,17 @@ awk '/^S/{header=">"$2; for(i=4; i<=NF; i++) {header=header" "$i}; print header;
 
 ## Usage
 
-**map2tag**: Approximate coverage from mapped long reads
+### map2tag
+
+Approximate coverage from mapped long reads
+
 ```bash
 map2tag -i input.gfa -r nanopore_reads.fq.gz -o output.gfa -t 4 -x map-ont
 ```
 
-**csv2tag**: Add tags to GFA from csv file.
+### csv2tag
+
+Add tags to GFA from csv file.
 
 INPUT_GFA: Path to the input GFA file (can be gzipped).
 INPUT_CSV: must have format = [NAME,TAG,TYPE,VALUE]
@@ -58,7 +63,9 @@ If set, calculate new LN tags from length of sequence.
 csv2tag -i input.gfa -c new_tags.csv -o output.gfa
 ```
 
-**fa2gfa**: Convert a FASTA file to GFA format.
+### fa2gfa
+
+Convert a FASTA file to GFA format.
 
 INPUT_FASTA: Path to the input FASTA file (can be gzipped).
 
@@ -68,7 +75,9 @@ OUTPUT_GFA: Path to the output GFA file. If not provided, the output will be sam
 fa2gfa -i assembly.fa.gz -o output assembly.gfa
 ```
 
-**tel2bed**: Quick annotation of telomeric repeat runs in fasta file.
+### tel2bed
+
+Quick annotation of telomeric repeat runs in fasta file.
 
 INPUT_FASTA: Path to the input FASTA file (can be gzipped).
 
