@@ -8,12 +8,12 @@ See the [GFA-Spec](https://gfa-spec.github.io/GFA-spec/).
 
 ## Tools 
 
-**map2gfa**: Uses Minimap2 to map reads to the assembly and approximates the coverage of each contig. Updates the `DP` depth tag.
+**map2tag**: Uses Minimap2 to map reads to the assembly and approximates the coverage of each contig. Updates the `DP` depth tag.
 
-[DEV] **csv2gfa**: Adds or updates gfa segment tags from a CSV. 
-Lines have the format `Segment`,`Tag`,`Type`,`Value`.
+**csv2tag**: Adds or updates gfa segment tags from a CSV. 
+CSV lines have the format `Segment`,`Tag`,`Type`,`Value`.
 
-[DEV] **mos2gfa**: Reads depth info from a [MosDepth](https://github.com/brentp/mosdepth) summary.txt file and updates `DP` tags in a corresponding `GFA`.
+[DEV] **mos2tag**: Reads depth info from a [MosDepth](https://github.com/brentp/mosdepth) summary.txt file and updates `DP` tags in a corresponding `GFA`.
 
 **fa2gfa**: Convert FASTA to GFA format. Produces Segment records for each FASTA record. Adds `LN` tags.
 
@@ -36,25 +36,52 @@ awk '/^S/{header=">"$2; for(i=4; i<=NF; i++) {header=header" "$i}; print header;
 
 ## Usage
 
+**map2tag**: Approximate coverage from mapped long reads
+```bash
+map2tag -i input.gfa -r nanopore_reads.fq.gz -o output.gfa -t 4 -x map-ont
 ```
-usage: map2gfa [-h] -i INPUT -r READS -o OUTPUT [-t THREADS]
-                           [-x PRESET] [--minimap2 MINIMAP2]
 
-Add depth information to an assembly
+**csv2tag**: Add tags to GFA from csv file.
 
-optional arguments:
-  -h, --help            show this help message and exit
-  -i INPUT, --input INPUT
-                        Input assembly (fasta or gfa)
-  -r READS, --reads READS
-                        Reads used to generate the assembly (fasta or fastq,
-                        can be gzipped)
-  -o OUTPUT, --output OUTPUT
-                        Output assembly (same format as input)
-  -t THREADS, --threads THREADS
-                        Number of threads to use [1]
-  -x PRESET, --preset PRESET
-                        Minimap2 preset to use [map-ont]
-  --minimap2 MINIMAP2   path to minimap2 executable [minimap2]
+INPUT_GFA: Path to the input GFA file (can be gzipped).
+INPUT_CSV: must have format = [NAME,TAG,TYPE,VALUE]
 
+Options:
+
+- --preserve_tags:   
+If set, preserve pre-existing tags from gfa file.
+
+- --calc_len:        
+If set, calculate new LN tags from length of sequence.
+
+```bash
+csv2tag -i input.gfa -c new_tags.csv -o output.gfa
+```
+
+**fa2gfa**: Convert a FASTA file to GFA format.
+
+INPUT_FASTA: Path to the input FASTA file (can be gzipped).
+
+OUTPUT_GFA: Path to the output GFA file. If not provided, the output will be same as input but with the '.gfa' extension.
+
+```bash
+fa2gfa -i assembly.fa.gz -o output assembly.gfa
+```
+
+**tel2bed**: Quick annotation of telomeric repeat runs in fasta file.
+
+INPUT_FASTA: Path to the input FASTA file (can be gzipped).
+
+Options:
+
+- -o,--output_bed:  
+Path to the output BED file. If not provided, the output file will have the same basename as the input with the '.bed' extension.
+- -m,--motif:  
+Telomeric motif to annotate in genome. By default tel2bed will search in fwd and rev orientations and will allow +/- 1bp flexibility in the pattern at any polynucleotide run.
+
+- -r,--min_repeats:   
+Minimum number of sequential pattern matches required for a hit to be reported. Default: 3
+
+```bash
+tel2bed -i contigs.fa -m TTAGGG -r 3
 ```
