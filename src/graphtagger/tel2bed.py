@@ -108,7 +108,7 @@ def process_fasta(
 def getArgs():
     # Set up argparse
     parser = argparse.ArgumentParser(
-        description="Convert FASTA file to GFA format.", prog="fa2gfa"
+        description="Quick annotation of telomeric repeat runs in fasta file.", prog="tel2bed"
     )
     parser.add_argument(
         "-i",
