@@ -17,7 +17,7 @@ CSV lines have the format `Segment`,`Tag`,`Type`,`Value`.
 
 **fa2gfa**: Convert FASTA to GFA format. Produces Segment records for each FASTA record. Adds `LN` tags.
 
-**tel2bed**: Quick annotation of telomeric repeat runs. Input: FASTA file, Telomeric motif (i.e. TTAGGG), min repeat count; Output: BED file.
+**tel2bed**: Quick annotation of telomeric repeat runs in BED format. This is useful for visualising potential chromosome ends in [Bandage-NG](https://github.com/asl/BandageNG)
 
 ### Converting from GFA to FASTA
 
