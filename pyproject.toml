@@ -31,14 +31,14 @@ write_to = "src/graphtagger/_version.py"
 dependencies = { file = "requirements.txt" }
 
 [project.urls]
-homepage = "https://github.com/RolandFaure/compute_coverage"
-documentation = "https://github.com/RolandFaure/compute_coverage"
-repository = "https://github.com/RolandFaure/compute_coverage"
+homepage = "https://github.com/Adamtaranto/graphtagger"
+documentation = "https://github.com/Adamtaranto/graphtagger"
+repository = "https://github.com/Adamtaranto/graphtagger"
 
 [project.scripts]
-map2gfa = "graphtagger.map2gfa:main"
-csv2gfa = "graphtagger.csv2gfa:main"
-mos2gfa = "graphtagger.mos2gfa:main"
+map2tag = "graphtagger.map2tag:main"
+csv2tag = "graphtagger.csv2tag:main"
+mos2tag = "graphtagger.mos2tag:main"
 fa2gfa = "graphtagger.fa2gfa:main"
 tel2bed = "graphtagger.tel2bed:main"
 
