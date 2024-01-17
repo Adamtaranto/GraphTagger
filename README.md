@@ -5,6 +5,22 @@ Sequences in GFA files are called Segments and may have meta-data stored in tags
 
 See the [GFA-Spec](https://gfa-spec.github.io/GFA-spec/). 
 
+## Installation
+
+GraphTagger requires Python >= v3.8
+
+Install directly from this git repository.
+
+```bash
+pip install git+https://github.com/Adamtaranto/GraphTagger.git
+```
+
+Or clone and install locally.
+
+```bash
+git clone https://github.com/Adamtaranto/GraphTagger.git && cd GraphTagger
+pip install -e .
+```
 
 ## Tools 
 
@@ -12,8 +28,6 @@ See the [GFA-Spec](https://gfa-spec.github.io/GFA-spec/).
 
 **csv2tag**: Adds or updates gfa segment tags from a CSV. 
 CSV lines have the format `Segment`,`Tag`,`Type`,`Value`.
-
-[DEV] **mos2tag**: Reads depth info from a [MosDepth](https://github.com/brentp/mosdepth) summary.txt file and updates `DP` tags in a corresponding `GFA`.
 
 **fa2gfa**: Convert FASTA to GFA format. Produces Segment records for each FASTA record. Adds `LN` tags.
 
@@ -36,13 +50,18 @@ awk '/^S/{header=">"$2; for(i=4; i<=NF; i++) {header=header" "$i}; print header;
 
 ## Usage
 
-### map2tag
+### Add depth tags from MosDepth
 
-Approximate coverage from mapped long reads
+Reads depth info from a [MosDepth](https://github.com/brentp/mosdepth) summary.txt file and updates `DP` tags in a corresponding `GFA`.
 
 ```bash
-map2tag -i input.gfa -r nanopore_reads.fq.gz -o output.gfa -t 4 -x map-ont
+# Align reads with minimap2
+# Calculate median depth
+# convert to csv
+# Update tags with csv2tag
 ```
+
+
 
 ### csv2tag
 
@@ -61,6 +80,14 @@ If set, calculate new LN tags from length of sequence.
 
 ```bash
 csv2tag -i input.gfa -c new_tags.csv -o output.gfa
+```
+
+### map2tag
+
+Approximate coverage from mapped long reads
+
+```bash
+map2tag -i input.gfa -r nanopore_reads.fq.gz -o output.gfa -t 4 -x map-ont
 ```
 
 ### fa2gfa
