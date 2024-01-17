@@ -7,6 +7,7 @@ import csv
 import gzip
 import logging
 import os.path
+import sys
 
 
 def load_tags_from_csv(csv_file: str) -> defaultdict:
@@ -187,6 +188,12 @@ def update_gfa_tags(
 
                     # Load tags from Column 4 onwards into the segment_tags dict
                     for tag_info in line[3:]:
+                        # Warn if whitespace found in tag
+                        if " " in tag_info:
+                            logging.warning(
+                                f"Possible malformed tag, contains whitespace, tags bust be tab-separated: {tag_info}"
+                            )
+                        # Split tag on ":"
                         tag_parts = tag_info.split(":")
                         if len(tag_parts) == 3:
                             tag_name, tag_type, value = tag_parts
@@ -273,12 +280,39 @@ def getArgs():
     return parser.parse_args()
 
 
+class CustomFormatter(logging.Formatter):
+    """Logging colored formatter, adapted from https://alexandra-zaharia.github.io/posts/make-your-own-custom-color-formatter-with-python-logging"""
+
+    grey = "\x1b[38;21m"
+    blue = "\x1b[38;5;39m"
+    yellow = "\x1b[38;5;226m"
+    red = "\x1b[38;5;196m"
+    bold_red = "\x1b[31;1m"
+    reset = "\x1b[0m"
+
+    def __init__(self, fmt):
+        super().__init__()
+        self.fmt = fmt
+        self.FORMATS = {
+            logging.DEBUG: self.grey + self.fmt + self.reset,
+            logging.INFO: self.blue + self.fmt + self.reset,
+            logging.WARNING: self.yellow + self.fmt + self.reset,
+            logging.ERROR: self.red + self.fmt + self.reset,
+            logging.CRITICAL: self.bold_red + self.fmt + self.reset,
+        }
+
+    def format(self, record):
+        log_fmt = self.FORMATS.get(record.levelno)
+        formatter = logging.Formatter(log_fmt)
+        return formatter.format(record)
+
+
 def main():
     # Set up logging
-    logging.basicConfig(
-        level=0,
-        format="%(asctime)s:%(levelname)s:%(module)s:%(message)s",
-    )
+    fmt = "%(asctime)s | %(levelname)8s | %(module)s:%(lineno)s:%(funcName)20s() | %(message)s"
+    handler_sh = logging.StreamHandler(sys.stdout)
+    handler_sh.setFormatter(CustomFormatter(fmt))
+    logging.basicConfig(format=fmt, level=logging.INFO, handlers=[handler_sh])
 
     # Parse command line arguments
     args = getArgs()
