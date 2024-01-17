@@ -38,7 +38,6 @@ repository = "https://github.com/Adamtaranto/graphtagger"
 [project.scripts]
 map2tag = "graphtagger.map2tag:main"
 csv2tag = "graphtagger.csv2tag:main"
-mos2tag = "graphtagger.mos2tag:main"
 fa2gfa = "graphtagger.fa2gfa:main"
 tel2bed = "graphtagger.tel2bed:main"
 
