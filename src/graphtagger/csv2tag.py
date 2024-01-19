@@ -10,7 +10,8 @@ import logging
 import os.path
 import sys
 
-# TASK: Report total number of segments with updated tags
+# TASK: Report total number of segments with updated tags.
+# TASK: Support tab-delimited input.
 
 def load_tags_from_csv(csv_file: str) -> defaultdict:
     """
