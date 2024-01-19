@@ -1,3 +1,4 @@
+from graphtagger.logs import CustomFormatter
 from graphtagger.utils import is_valid_fasta_file
 from graphtagger.motifs import get_flexi_motifs, find_repeats_of_motif
 from graphtagger.seqOps import revComp
@@ -9,7 +10,10 @@ import argparse
 import gzip
 import logging
 import os.path
+import sys
 
+# TASK: Choose either "-" strand or rev comp "name" for output bed.
+# TASH: Support GFA as input format.
 
 def process_fasta(
     input_file: str, output_file: str, motif: str, minrep: Optional[int] = 1
@@ -143,10 +147,10 @@ def getArgs():
 
 def main():
     # Set up logging
-    logging.basicConfig(
-        level=0,
-        format="%(asctime)s:%(levelname)s:%(module)s:%(message)s",
-    )
+    fmt = "%(asctime)s | %(levelname)8s | %(module)s:%(lineno)s:%(funcName)20s() | %(message)s"
+    handler_sh = logging.StreamHandler(sys.stdout)
+    handler_sh.setFormatter(CustomFormatter(fmt))
+    logging.basicConfig(format=fmt, level=logging.INFO, handlers=[handler_sh])
 
     # Parse command line arguments
     args = getArgs()

@@ -1,8 +1,11 @@
-# author: Roland Faure
-# small python script to take an assembly (fasta or gfa) and output an assembly in the same format with depth information
+# Author: Roland Faure
+# Small python script to take an assembly (fasta or gfa) and output an assembly in the same format with depth information
+
+from graphtagger.logs import CustomFormatter
 
 import sys
 import argparse
+import logging
 import os
 
 
@@ -45,6 +48,12 @@ def parse_args():
 
 
 def main():
+    # Set up logging
+    fmt = "%(asctime)s | %(levelname)8s | %(module)s:%(lineno)s:%(funcName)20s() | %(message)s"
+    handler_sh = logging.StreamHandler(sys.stdout)
+    handler_sh.setFormatter(CustomFormatter(fmt))
+    logging.basicConfig(format=fmt, level=logging.INFO, handlers=[handler_sh])
+    
     args = parse_args()
 
     minimap = args.minimap2

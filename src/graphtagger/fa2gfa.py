@@ -1,3 +1,4 @@
+from graphtagger.logs import CustomFormatter
 from graphtagger.utils import is_valid_fasta_file
 
 from Bio import SeqIO
@@ -7,6 +8,7 @@ import argparse
 import gzip
 import logging
 import os
+import sys
 
 
 # gfa2fa
@@ -87,10 +89,10 @@ def convert_fasta_to_gfa(input_fasta: str, output_gfa: Optional[str] = None) -> 
 
 def main():
     # Set up logging
-    logging.basicConfig(
-        level=0,
-        format="%(asctime)s:%(levelname)s:%(module)s:%(message)s",
-    )
+    fmt = "%(asctime)s | %(levelname)8s | %(module)s:%(lineno)s:%(funcName)20s() | %(message)s"
+    handler_sh = logging.StreamHandler(sys.stdout)
+    handler_sh.setFormatter(CustomFormatter(fmt))
+    logging.basicConfig(format=fmt, level=logging.INFO, handlers=[handler_sh])
 
     # Parse command line arguments
     args = getArgs()

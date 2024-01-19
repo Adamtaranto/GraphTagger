@@ -1,3 +1,4 @@
+from graphtagger.logs import CustomFormatter
 from graphtagger.utils import is_valid_gfa_file
 
 from collections import defaultdict
@@ -9,6 +10,7 @@ import logging
 import os.path
 import sys
 
+# TASK: Report total number of segments with updated tags
 
 def load_tags_from_csv(csv_file: str) -> defaultdict:
     """
@@ -68,7 +70,7 @@ def load_tags_from_csv(csv_file: str) -> defaultdict:
 
     logging.info("Unique combinations of TAG:TYPE and their occurrences in csv:")
     for tag_type_combination, count in tag_counts.items():
-        logging.info(f"{tag_type_combination}: {count}")
+        logging.info(f"\"{tag_type_combination}\" x {count}")
 
     return tag_dict
 
@@ -191,7 +193,7 @@ def update_gfa_tags(
                         # Warn if whitespace found in tag
                         if " " in tag_info:
                             logging.warning(
-                                f"Possible malformed tag, contains whitespace, tags bust be tab-separated: {tag_info}"
+                                f"Possible malformed tag, contains whitespace, tags bust be tab-separated: \"{tag_info}\""
                             )
                         # Split tag on ":"
                         tag_parts = tag_info.split(":")
@@ -278,33 +280,6 @@ def getArgs():
     )
     # Parse command line arguments
     return parser.parse_args()
-
-
-class CustomFormatter(logging.Formatter):
-    """Logging colored formatter, adapted from https://alexandra-zaharia.github.io/posts/make-your-own-custom-color-formatter-with-python-logging"""
-
-    grey = "\x1b[38;21m"
-    blue = "\x1b[38;5;39m"
-    yellow = "\x1b[38;5;226m"
-    red = "\x1b[38;5;196m"
-    bold_red = "\x1b[31;1m"
-    reset = "\x1b[0m"
-
-    def __init__(self, fmt):
-        super().__init__()
-        self.fmt = fmt
-        self.FORMATS = {
-            logging.DEBUG: self.grey + self.fmt + self.reset,
-            logging.INFO: self.blue + self.fmt + self.reset,
-            logging.WARNING: self.yellow + self.fmt + self.reset,
-            logging.ERROR: self.red + self.fmt + self.reset,
-            logging.CRITICAL: self.bold_red + self.fmt + self.reset,
-        }
-
-    def format(self, record):
-        log_fmt = self.FORMATS.get(record.levelno)
-        formatter = logging.Formatter(log_fmt)
-        return formatter.format(record)
 
 
 def main():
