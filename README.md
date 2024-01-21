@@ -48,19 +48,16 @@ CSV lines have the format `Name`,`Tag`,`Type`,`Value`.
 
 #### Converting from GFA to FASTA
 
-To convert an assembly graph into a FASTA of contigs you can use the `awk` one-liners.
+To convert an assembly graph into a FASTA of contigs you can use one of these `awk` one-liners.
 
-This method supports sequence names longer than the 80 char sequence wrap length.
+If you want to preserve the GFA segment tags (i.e. segment length `LN`, or depth `DP`) in the FASTA description, option #2 will append them to the FASTA headers.
 
 ```bash
+# Convert GFA to FASTA
+# Supports sequence names longer than the 80 char sequence wrap length.
 awk '/^S/{print ">"$2; printf "%s", $3 | "fold -w 80"; close("fold -w 80"); print ""}' in.gfa > out.fa
-```
 
-**Include GFA tags in FASTA header line**
-
-If you also want to preserve the GFA segment tags (i.e. segment length `LN`, or depth `DP`) in the FASTA description you can append them to the FASTA headers:
-
-```bash
+# Include GFA tags in FASTA header line.
 awk '/^S/{header=">"$2; for(i=4; i<=NF; i++) {header=header" "$i}; print header; printf "%s", $3 | "fold -w 80"; close("fold -w 80"); print ""}' in.gfa > out.fa
 ```
 
