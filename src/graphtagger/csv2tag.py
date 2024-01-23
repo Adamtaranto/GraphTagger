@@ -6,6 +6,7 @@ from typing import Dict, Tuple
 import argparse
 import csv
 import gzip
+import hashlib
 import logging
 import os.path
 import sys
@@ -145,6 +146,7 @@ def update_gfa_tags(
     tag_dict: Dict[str, Dict[str, Tuple[str, str]]],
     preserve: bool = True,
     calcLen: bool = False,
+    calcHash: bool = False,
 ):
     """
     Read a GFA file, update the Segment lines with information from tag_dict, and write to an output file.
@@ -217,6 +219,14 @@ def update_gfa_tags(
                             "i",
                             str(len(dna_sequence)),
                         )
+                        
+                    # Add new SH tag to segment_tags dict if calcHash is True
+                    if calcHash:
+                        checksum = hashlib.sha256(str(dna_sequence).encode()).hexdigest()
+                        segment_tags[sequence_name]["SH"] = (
+                            "H",
+                            str(checksum),
+                        )
 
                     # If no tags have been found for this segment, init an empty tag_dict
                     # This gives update_tags() somewhere to copy the csv_tags into
@@ -279,6 +289,13 @@ def getArgs():
         action="store_true",
         help="If set, calculate new LN tags from length of sequence.",
     )
+    parser.add_argument(
+        "-s",
+        "--calc_hash",
+        default=False,
+        action="store_true",
+        help="If set, calculate new SH tags from sha256 hash of sequence.",
+    )    
     # Parse command line arguments
     return parser.parse_args()
 
@@ -307,6 +324,7 @@ def main():
         csv_tags,
         preserve=args.preserve_tags,
         calcLen=args.calc_len,
+        calcHash=args.calc_hash,
     )
 
 
