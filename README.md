@@ -36,6 +36,9 @@ CSV lines have the format `Name`,`Tag`,`Type`,`Value`.
 
 **map2tag**: Uses Minimap2 to map reads to the assembly and approximates the coverage of each contig. Updates the `DP` depth tag.
 
+### Working with Paths
+[DEV] **gaf2path**: Generate GFA format Path lines from GraphAligner GAF output.
+
 ### Feature annotation tools
 
 **tel2bed**: Quick annotation of telomeric repeat runs in FASTA file, outputs BED format. This is useful for visualising potential chromosome ends in [Bandage-NG](https://github.com/asl/BandageNG). 
