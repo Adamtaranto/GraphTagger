@@ -10,6 +10,7 @@ import logging
 import os
 import sys
 
+# TODO: Add SH tag to new gfa
 
 # gfa2fa
 # Support headers longer than 80 chars, no tags
