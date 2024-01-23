@@ -11,8 +11,12 @@ import logging
 import os.path
 import sys
 
-# TASK: Report total number of segments with updated tags.
-# TASK: Support tab-delimited input.
+# TODO: Report total number of segments with updated tags.
+# TODO: Support tab-delimited input.
+# TODO: Check tags meet GFA Specs: See _tags to annotations: https://github.com/biopython/biopython/pull/4598/commits/60217f2ae7cd987a25c8d299fab7b4edf85ac111
+# TODO: Exclude tags the do not meet spec (i.e. if there is a space in TAG)
+# TODO: Sort Keys before adding tags to output line instead of FIFO ordering.
+
 
 def load_tags_from_csv(csv_file: str) -> defaultdict:
     """
@@ -72,7 +76,7 @@ def load_tags_from_csv(csv_file: str) -> defaultdict:
 
     logging.info("Unique combinations of TAG:TYPE and their occurrences in csv:")
     for tag_type_combination, count in tag_counts.items():
-        logging.info(f"\"{tag_type_combination}\" x {count}")
+        logging.info(f'"{tag_type_combination}" x {count}')
 
     return tag_dict
 
@@ -88,9 +92,18 @@ def format_tags(sub_dict: Dict[str, Tuple[str, str]]) -> str:
     - str: The formatted tags string.
     """
     formatted_tags = []
-    for tag_name, (tag_type, value) in sub_dict.items():
+
+    # Sort tag_name keys in sub_dict
+    sorted_tag_names = sorted(sub_dict.keys())
+
+    for tag_name in sorted_tag_names:
+        # Fetch tag type and value
+        tag_type, value = sub_dict[tag_name]
+        # Construct tag
         formatted_tag = f"{tag_name}:{tag_type}:{value}"
+        # Add to tag list
         formatted_tags.append(formatted_tag)
+    # Join tags with tabs
     return "\t".join(formatted_tags)
 
 
@@ -193,21 +206,27 @@ def update_gfa_tags(
 
                     # Load tags from Column 4 onwards into the segment_tags dict
                     for tag_info in line[3:]:
-                        # Warn if whitespace found in tag
-                        if " " in tag_info:
-                            logging.warning(
-                                f"Possible malformed tag, contains whitespace, tags bust be tab-separated: \"{tag_info}\""
-                            )
                         # Split tag on ":"
                         tag_parts = tag_info.split(":")
-                        if len(tag_parts) == 3:
+                        # Check that tag has three segments
+                        if len(tag_parts) == 3: # TODO: Create separate validate_tags function to check tag specs
+                            # Unpack tag parts to TAG, TYPE, VALUE
                             tag_name, tag_type, value = tag_parts
+
+                            # Reject if whitespace found in tag name
+                            if " " in tag_name:
+                                logging.warning(
+                                    f'Skipping malformed tag, contains whitespace, tags bust be tab-separated: "{tag_info}"'
+                                )
+                                continue
+
                             # Raise warning if duplicate tag name exists in input gfa
                             if tag_name in segment_tags[sequence_name]:
                                 logging.warning(
                                     f"Pre-existing duplicate tag {tag_name} on segment line {sequence_name}"
                                 )
-                            # Add new tag to segment dict, or overwrite duplicate
+
+                            # Add new tag to segment dict, or overwrite duplicate if exists
                             segment_tags[sequence_name][tag_name] = (tag_type, value)
                         else:
                             # Log a warning and skip the tag_info item
@@ -219,10 +238,12 @@ def update_gfa_tags(
                             "i",
                             str(len(dna_sequence)),
                         )
-                        
+
                     # Add new SH tag to segment_tags dict if calcHash is True
                     if calcHash:
-                        checksum = hashlib.sha256(str(dna_sequence).encode()).hexdigest()
+                        checksum = hashlib.sha256(
+                            str(dna_sequence).encode()
+                        ).hexdigest()
                         segment_tags[sequence_name]["SH"] = (
                             "H",
                             str(checksum),
@@ -295,7 +316,7 @@ def getArgs():
         default=False,
         action="store_true",
         help="If set, calculate new SH tags from sha256 hash of sequence.",
-    )    
+    )
     # Parse command line arguments
     return parser.parse_args()
 
