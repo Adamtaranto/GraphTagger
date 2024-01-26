@@ -1,5 +1,31 @@
 import logging
 import os.path
+import shutil
+import sys
+from typing import List, Optional
+
+def are_tools_available(tool_names: List[str], strict: Optional[bool] = False) -> None:
+    """
+    Check if specified tools are available on the PATH.
+
+    Args:
+        tool_names (List[str]): List of tool names to check.
+        strict (Optional[bool]): If True, exit the program if one or more tools are missing.
+
+    Returns:
+        None
+    """
+    missing_tools = []
+
+    for tool_name in tool_names:
+        if shutil.which(tool_name) is None:
+            logging.warning(f"{tool_name} is not found on the PATH.")
+            missing_tools.append(tool_name)
+
+    if strict and missing_tools:
+        missing_tools_str = ', '.join(missing_tools)
+        logging.error(f"One or more required tools are missing: {missing_tools_str}")
+        sys.exit(1)
 
 def is_valid_fasta_file(input_fasta: str) -> bool:
     """
@@ -13,7 +39,7 @@ def is_valid_fasta_file(input_fasta: str) -> bool:
     """
     valid_extensions = [".fa", ".fasta", ".fna"]
 
-    if not os.path.exists(input_fasta):
+    if not os.path.isfile(input_fasta):
         logging.error(f"Input file '{input_fasta}' does not exist.")
         return False
 
@@ -52,7 +78,7 @@ def is_valid_gfa_file(input_gfa: str) -> bool:
     """
     valid_extensions = [".gfa"]
 
-    if not os.path.exists(input_gfa):
+    if not os.path.isfile(input_gfa):
         logging.error(f"Input file '{input_gfa}' does not exist.")
         return False
 
