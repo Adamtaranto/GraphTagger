@@ -95,7 +95,7 @@ map2tag -i input.gfa -r nanopore_reads.fq.gz -p outdir/tagged_graph -t 4 -x map-
 ```
 ### gaf2path
 
-Convert graph-alignments (GAF) to GFA path-lines.
+Convert graph-alignments (GAF) to GFA path-lines. Only reports paths that have at least 2 segments.
 
 INPUT_GAF: GAF file containing path information. Produced by [GraphAligner](https://github.com/maickrau/GraphAligner).   
 
