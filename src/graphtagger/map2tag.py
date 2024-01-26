@@ -7,7 +7,7 @@ Maps reads using minimap2, and calculates approximate mean depth per sequence.
 Outputs an assembly in the same format as input with depth information in DP tags.
 """
 
-from graphtagger.logs import CustomFormatter
+from graphtagger.logs import init_logging
 from graphtagger.utils import (
     are_tools_available,
     is_valid_fasta_file,
@@ -325,14 +325,6 @@ def write_tags_to_file(infile, outfile, is_gfa, is_gzipped, depthDict):
                         )
                     else:
                         output_file.write(line)
-
-
-def init_logging():
-    fmt = "%(asctime)s | %(levelname)8s | %(module)s:%(lineno)s:%(funcName)20s() | %(message)s"
-    handler_sh = logging.StreamHandler(sys.stdout)
-    handler_sh.setFormatter(CustomFormatter(fmt))
-    logging.basicConfig(format=fmt, level=logging.DEBUG, handlers=[handler_sh])
-
 
 def main():
     # Set up logging
