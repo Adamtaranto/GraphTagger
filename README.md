@@ -87,10 +87,29 @@ csv2tag -i input.gfa -c new_tags.csv -o output.gfa
 
 ### map2tag
 
-Approximate coverage from mapped long reads.
+Approximate coverage from mapped long reads.   
 
 ```bash
-map2tag -i input.gfa -r nanopore_reads.fq.gz -o output.gfa -t 4 -x map-ont
+map2tag -i input.gfa -r nanopore_reads.fq.gz -p outdir/tagged_graph -t 4 -x map-ont
+# Output: outdir/tagged_graph.gfa
+```
+### gaf2path
+
+Convert graph-alignments (GAF) to GFA path-lines.
+
+INPUT_GAF: GAF file containing path information. Produced by [GraphAligner](https://github.com/maickrau/GraphAligner).   
+
+OUTPUT_GFA: GFA formatted path-lines. Can be manually appended to the end of the original GFA graph used to produce the GAF file.
+
+```bash
+# Align long-reads to GFA 
+GraphAligner --threads 8 --multimap-score-fraction 1 -x vg -f reads.fq -g input_graph.gfa -a longreads_aligned_on_gfa.gaf
+
+# Convert GAF to GFA path-lines
+gaf2path -g longreads_aligned_on_gfa.gaf -o pathlines.gfa
+
+# Append pathlines to end of original graph
+cat pathlines.gfa >> input_graph.gfa
 ```
 
 ### fa2gfa
