@@ -21,6 +21,8 @@ def are_tools_available(tool_names: List[str], strict: Optional[bool] = False) -
         if shutil.which(tool_name) is None:
             logging.warning(f"{tool_name} is not found on the PATH.")
             missing_tools.append(tool_name)
+        else:
+            logging.info(f"Found {tool_name}: {shutil.which(tool_name)}")
 
     if strict and missing_tools:
         missing_tools_str = ', '.join(missing_tools)
@@ -66,7 +68,7 @@ def is_valid_fasta_file(input_fasta: str) -> bool:
     return True
 
 
-def is_valid_gfa_file(input_gfa: str) -> bool:
+def is_valid_gfa_file(input_gfa: str, silent: bool = False) -> bool:
     """
     Check if the input file is a valid GFA file.
 
@@ -79,7 +81,7 @@ def is_valid_gfa_file(input_gfa: str) -> bool:
     valid_extensions = [".gfa"]
 
     if not os.path.isfile(input_gfa):
-        logging.error(f"Input file '{input_gfa}' does not exist.")
+        logging.error(f"Input file '{input_gfa}' does not exist.") if not silent else None
         return False
 
     # Extract the file extension, considering .gz if present
@@ -92,14 +94,14 @@ def is_valid_gfa_file(input_gfa: str) -> bool:
     if is_gzipped and upstream_ext.lower() not in valid_extensions:
         logging.error(
             f"Invalid file extension for '{input_gfa}'. Supported extensions are {', '.join(valid_extensions)}. These may be followed by .gz"
-        )
+        ) if not silent else None
         return False
 
     # Check if the file extension is valid
     elif not is_gzipped and base_ext.lower() not in valid_extensions:
         logging.error(
             f"Invalid file extension for '{input_gfa}'. Supported extensions are {', '.join(valid_extensions)}."
-        )
+        ) if not silent else None
         return False
 
     return True
