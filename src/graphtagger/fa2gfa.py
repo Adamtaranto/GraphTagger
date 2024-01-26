@@ -6,11 +6,10 @@ from Bio import SeqIO
 from typing import Optional
 import argparse
 import gzip
+import hashlib
 import logging
 import os
 import sys
-
-# TODO: Add SH tag to new gfa
 
 # gfa2fa
 # Support headers longer than 80 chars, no tags
@@ -38,12 +37,21 @@ def getArgs():
         help="Path to the output GFA file. If not provided, "
         "the output file will have the same basename as the input with the '.gfa' extension.",
     )
+    parser.add_argument(
+        "-s",
+        "--calc_hash",
+        default=False,
+        action="store_true",
+        help="If set, calculate new SH tags from sha256 hash of sequence.",
+    )
 
     # Parse command line arguments
     return parser.parse_args()
 
 
-def convert_fasta_to_gfa(input_fasta: str, output_gfa: Optional[str] = None) -> None:
+def convert_fasta_to_gfa(
+    input_fasta: str, output_gfa: Optional[str] = None, calcHash: bool = False
+) -> None:
     """
     Convert FASTA file to GFA format.
 
@@ -79,10 +87,19 @@ def convert_fasta_to_gfa(input_fasta: str, output_gfa: Optional[str] = None) -> 
             seq_count = 0
             # Read records from the FASTA file one at a time
             for seq_record in SeqIO.parse(input_file, "fasta"):
-                # Write the information from the current seqRecord to the output file in gfa segment line format
-                output_file.write(
-                    f"S\t{seq_record.id}\t{str(seq_record.seq)}\tLN:i:{len(seq_record)}\n"
-                )
+                # Add new SH tag to segment_tags dict if calcHash is True
+                if calcHash:
+                    # Calculate sha256 hash of the sequence
+                    checksum = hashlib.sha256(str(seq_record.seq).encode()).hexdigest()
+                    # Write the information from the current seqRecord to the output file in gfa segment line format
+                    output_file.write(
+                        f"S\t{seq_record.id}\t{str(seq_record.seq)}\tLN:i:{len(seq_record)}\tSH:H:{checksum}\n"
+                    )
+                else:
+                    # Write the information from the current seqRecord to the output file in gfa segment line format
+                    output_file.write(
+                        f"S\t{seq_record.id}\t{str(seq_record.seq)}\tLN:i:{len(seq_record)}\n"
+                    )
                 seq_count += 1
 
     logging.info(f"Converted {seq_count} records to gfa.")
@@ -99,7 +116,7 @@ def main():
     args = getArgs()
 
     # Convert FASTA to GFA
-    convert_fasta_to_gfa(args.input_fasta, args.output_gfa)
+    convert_fasta_to_gfa(args.input_fasta, args.output_gfa, args.calc_hash)
 
 
 if __name__ == "__main__":
