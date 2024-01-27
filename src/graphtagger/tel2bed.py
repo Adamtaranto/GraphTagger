@@ -12,8 +12,9 @@ import logging
 import os.path
 import sys
 
-# TASK: Choose either "-" strand or rev comp "name" for output bed.
-# TASH: Support GFA as input format.
+# TODO: Choose either "-" strand or rev comp "name" for output bed.
+# TODO: Support GFA as input format.
+# TODO: Make bed work with BandageNG
 
 def process_fasta(
     input_file: str, output_file: str, motif: str, minrep: Optional[int] = 1
