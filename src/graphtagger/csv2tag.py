@@ -1,5 +1,6 @@
 from graphtagger.logs import init_logging
 from graphtagger.utils import is_valid_gfa_file
+from graphtagger.tagOps import _check_tag_values, _validate_tags
 
 from collections import defaultdict
 from typing import Dict, Tuple
@@ -9,13 +10,10 @@ import gzip
 import hashlib
 import logging
 import os.path
-import sys
 
 # TODO: Report total number of segments with updated tags.
-# TODO: Support tab-delimited input.
-# TODO: Check tags meet GFA Specs: See _tags to annotations: https://github.com/biopython/biopython/pull/4598/commits/60217f2ae7cd987a25c8d299fab7b4edf85ac111
-# TODO: Exclude tags the do not meet spec (i.e. if there is a space in TAG)
-# TODO: Sort Keys before adding tags to output line instead of FIFO ordering.
+# Maybe have update_tags() return True if any changes were made.
+# May need to also count if any malformed tags are dumped from the Seg line.
 
 
 def load_tags_from_csv(csv_file: str) -> defaultdict:
@@ -81,7 +79,7 @@ def load_tags_from_csv(csv_file: str) -> defaultdict:
     return tag_dict
 
 
-def format_tags(sub_dict: Dict[str, Tuple[str, str]]) -> str:
+def format_tags(sub_dict: Dict[str, Tuple[str, str]], strict: bool = False) -> str:
     """
     Format the sub_dict into a string of tab-delimited tags.
 
@@ -101,8 +99,19 @@ def format_tags(sub_dict: Dict[str, Tuple[str, str]]) -> str:
         tag_type, value = sub_dict[tag_name]
         # Construct tag
         formatted_tag = f"{tag_name}:{tag_type}:{value}"
-        # Add to tag list
-        formatted_tags.append(formatted_tag)
+        # Validate tag against GFA 1.0 Spec
+        tag_is_valid = _validate_tags([formatted_tag])
+        # If strict mode, only write tags that pass checks
+        if strict and tag_is_valid:
+            # Add to tag list
+            formatted_tags.append(formatted_tag)
+        # If not strict mode write all tags
+        elif not strict:
+            # Add to tag list
+            formatted_tags.append(formatted_tag)
+        else:
+            logging.warning(f"Skipping invalid tag: {formatted_tag}")
+
     # Join tags with tabs
     return "\t".join(formatted_tags)
 
@@ -160,6 +169,7 @@ def update_gfa_tags(
     preserve: bool = True,
     calcLen: bool = False,
     calcHash: bool = False,
+    enforceSpec: bool = False,
 ):
     """
     Read a GFA file, update the Segment lines with information from tag_dict, and write to an output file.
@@ -201,6 +211,9 @@ def update_gfa_tags(
                     sequence_name = line[1]
                     dna_sequence = line[2]
 
+                    # Check LN and SH are vaild if present
+                    _check_tag_values(sequence_name, dna_sequence, line[3:])
+
                     # Initialize segment_tags as a defaultdict of dicts
                     segment_tags = defaultdict(dict)
 
@@ -209,9 +222,21 @@ def update_gfa_tags(
                         # Split tag on ":"
                         tag_parts = tag_info.split(":")
                         # Check that tag has three segments
-                        if len(tag_parts) == 3: # TODO: Create separate validate_tags function to check tag specs
+                        if len(tag_parts) >= 3:
                             # Unpack tag parts to TAG, TYPE, VALUE
-                            tag_name, tag_type, value = tag_parts
+                            tag_name = tag_parts[0]
+                            tag_type = tag_parts[1]
+                            # Reassemble downstream splits in the value in case it contained ":" characters.
+                            # This may happen in JSON tags.
+                            tag_value = ":".join(
+                                tag_parts[2:]
+                            )  # tag value may contain : characters
+
+                            # Log error if ":" in value of non-JSON tag
+                            if ":" in tag_value and tag_type != "J":
+                                logging.warning(
+                                    f"Possible malformed tag. Contains ':' in value field. Use '--strict' to skip.: {tag_info}"
+                                )
 
                             # Reject if whitespace found in tag name
                             if " " in tag_name:
@@ -223,13 +248,16 @@ def update_gfa_tags(
                             # Raise warning if duplicate tag name exists in input gfa
                             if tag_name in segment_tags[sequence_name]:
                                 logging.warning(
-                                    f"Pre-existing duplicate tag {tag_name} on segment line {sequence_name}"
+                                    f"Pre-existing duplicate of tag '{tag_name}' in segment line '{sequence_name}'."
                                 )
 
                             # Add new tag to segment dict, or overwrite duplicate if exists
-                            segment_tags[sequence_name][tag_name] = (tag_type, value)
+                            segment_tags[sequence_name][tag_name] = (
+                                tag_type,
+                                tag_value,
+                            )
                         else:
-                            # Log a warning and skip the tag_info item
+                            # Log a warning and skip the tag_info item if < 3 parts
                             logging.warning(f"Skipping malformed tag_info: {tag_info}")
 
                     # Add a new tag to the segment_tags dict if calcLen is True
@@ -254,13 +282,15 @@ def update_gfa_tags(
                     if sequence_name not in segment_tags:
                         segment_tags[sequence_name] = {}
 
-                    # Update segment_tags using the tag_dict
+                    # Update segment_tags using the CSV tag_dict
                     updated_tags = update_tags(
                         tag_dict, segment_tags, preserve=preserve
                     )
 
                     # Format the updated tags into a string
-                    formatted_tags = format_tags(updated_tags[sequence_name])
+                    formatted_tags = format_tags(
+                        updated_tags[sequence_name], strict=enforceSpec
+                    )
 
                     # Append the formatted tags to the end of the line
                     updated_line = f"{line[0]}\t{sequence_name}\t{dna_sequence}\t{formatted_tags}\n"
@@ -317,6 +347,12 @@ def getArgs():
         action="store_true",
         help="If set, calculate new SH tags from sha256 hash of sequence.",
     )
+    parser.add_argument(
+        "--strict",
+        default=False,
+        action="store_true",
+        help="If set, reject any new or existing tags that do not strictly comply with the GFA 1.0 specification.",
+    )
     # Parse command line arguments
     return parser.parse_args()
 
@@ -343,6 +379,7 @@ def main():
         preserve=args.preserve_tags,
         calcLen=args.calc_len,
         calcHash=args.calc_hash,
+        enforceSpec=args.strict,
     )
 
 
