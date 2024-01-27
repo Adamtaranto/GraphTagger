@@ -71,7 +71,8 @@ awk '/^S/{header=">"$2; for(i=4; i<=NF; i++) {header=header" "$i}; print header;
 Add tags to GFA from csv file.
 
 INPUT_GFA: Path to the input GFA file (can be gzipped).   
-INPUT_CSV: must have format = [NAME,TAG,TYPE,VALUE]
+INPUT_CSV: Must have format = [NAME,TAG,TYPE,VALUE]   
+OUTPUT_GFA: Write updated GFA to this file.   
 
 Options:
 
@@ -80,6 +81,12 @@ If set, preserve pre-existing tags from gfa file.
 
 - --calc_len:        
 If set, calculate new LN tags from length of sequence.
+
+- --calc_hash:
+If set, calculate new SH tag as sha256 hash of sequence.
+
+- --strict
+If set, only return tags that comply with the GFA 1.0 spec
 
 ```bash
 csv2tag -i input.gfa -c new_tags.csv -o output.gfa
