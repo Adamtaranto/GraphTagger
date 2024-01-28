@@ -9,7 +9,6 @@ import gzip
 import hashlib
 import logging
 import os
-import sys
 
 # gfa2fa
 # Support headers longer than 80 chars, no tags
