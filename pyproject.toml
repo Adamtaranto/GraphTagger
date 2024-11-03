@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools", "setuptools-scm"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
 
 [project]
 name = "GraphTagger"
@@ -18,17 +18,12 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Intended Audience :: Science/Research",
     "Topic :: Scientific/Engineering :: Bio-Informatics",
-    "License :: OSI Approved :: GNU General Public License (GPL)",
+    "License :: OSI Approved :: MIT License",
 ]
 
-dynamic = ["version", "dependencies"]
+dependencies = ["biopython"]
 
-[tool.setuptools_scm]
-write_to = "src/graphtagger/_version.py"
-
-[tool.setuptools.dynamic]
-#version = { attr = "graphtagger.__version__" }
-dependencies = { file = "requirements.txt" }
+dynamic = ["version"]
 
 [project.urls]
 homepage = "https://github.com/Adamtaranto/graphtagger"
@@ -42,22 +37,26 @@ fa2gfa = "graphtagger.fa2gfa:main"
 tel2bed = "graphtagger.tel2bed:main"
 gaf2path = "graphtagger.gaf2path:main"
 
+[tool.hatch.build]
+source = "src"
 
+exclude = [
+    "environment.yml",
+    ".gitpod.Dockerfile",
+    ".gitpod.yml",
+    ".dockerignore",
+    ".vscode",
+]
 
-# Create and push tags
-# git tag -a v0.0.4 
-# git push origin v0.0.4
+[tool.hatch.version]
+source = "vcs"
 
-# Check what setuptools_scm thinks the current version is and create _version.py
-# git describe
-# python -m setuptools_scm
-# python setup.py --version
+[tool.hatch.version.vcs]
+tag-pattern = "v*"  # Git tags starting with 'v' will be used for versioning
+fallback-version = "0.0.0"
 
-# Build
-# python3 -m pip install --upgrade build && python3 -m build
-# OR
-# Build sdist
-# python setup.py sdist 
+[tool.hatch.build.hooks.vcs]
+version-file = "src/graphtagger/_version.py"
 
-# Push to pypi
-# twine upload dist/*
+[project.optional-dependencies]
+tests = ["pytest"]
