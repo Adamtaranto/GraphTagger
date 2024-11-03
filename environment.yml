@@ -8,7 +8,6 @@ dependencies:
   - pip
   - python >=3.12
   - pip:
-      - Biopython
+      - biopython
       - hatch
       - pytest
-      - Ruff
