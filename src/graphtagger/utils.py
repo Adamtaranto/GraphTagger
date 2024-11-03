@@ -1,8 +1,9 @@
+from typing import List, Optional
 import logging
 import os.path
 import shutil
 import sys
-from typing import List, Optional
+
 
 def are_tools_available(tool_names: List[str], strict: Optional[bool] = False) -> None:
     """
@@ -25,9 +26,10 @@ def are_tools_available(tool_names: List[str], strict: Optional[bool] = False) -
             logging.info(f"Found {tool_name}: {shutil.which(tool_name)}")
 
     if strict and missing_tools:
-        missing_tools_str = ', '.join(missing_tools)
+        missing_tools_str = ", ".join(missing_tools)
         logging.error(f"One or more required tools are missing: {missing_tools_str}")
         sys.exit(1)
+
 
 def is_valid_fasta_file(input_fasta: str) -> bool:
     """
@@ -81,7 +83,9 @@ def is_valid_gfa_file(input_gfa: str, silent: bool = False) -> bool:
     valid_extensions = [".gfa"]
 
     if not os.path.isfile(input_gfa):
-        logging.error(f"Input file '{input_gfa}' does not exist.") if not silent else None
+        logging.error(
+            f"Input file '{input_gfa}' does not exist."
+        ) if not silent else None
         return False
 
     # Extract the file extension, considering .gz if present

@@ -2,17 +2,10 @@
 
 """
 A small python script to add depth tags (DP) to an assembly.
-Input: Takes an assembly (fasta or gfa, may be gzipped) and sequencing reads (fastq/fasta). 
+Input: Takes an assembly (fasta or gfa, may be gzipped) and sequencing reads (fastq/fasta).
 Maps reads using minimap2, and calculates approximate mean depth per sequence.
 Outputs an assembly in the same format as input with depth information in DP tags.
 """
-
-from graphtagger.logs import init_logging
-from graphtagger.utils import (
-    are_tools_available,
-    is_valid_fasta_file,
-    is_valid_gfa_file,
-)
 
 import argparse
 import gzip
@@ -21,6 +14,13 @@ import os
 import subprocess
 import sys
 import tempfile
+
+from graphtagger.logs import init_logging
+from graphtagger.utils import (
+    are_tools_available,
+    is_valid_fasta_file,
+    is_valid_gfa_file,
+)
 
 
 def parse_args():
@@ -185,15 +185,19 @@ def get_depth(
     ]
     # Run the command
     try:
-        logging.info(f"Call: {' '.join(command)}")        
+        logging.info(f"Call: {' '.join(command)}")
         process = subprocess.run(
-            command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, text=True
-            )
+            command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=True,
+            text=True,
+        )
 
         # Print stderr
         logging.info("=== Minimap2 STDERR ===")
         logging.info(process.stderr)
-        
+
         # Write the result to the output file
         with open(paffile, "w") as output:
             output.write(process.stdout)
@@ -279,9 +283,9 @@ def write_tags_to_file(infile, outfile, is_gfa, is_gzipped, depthDict):
                             # If existing DP tag found
                             if dp_tags:
                                 # If "DP" tags exist, update the first one found
-                                fields[
-                                    fields.index(dp_tags[0])
-                                ] = f"DP:f:{depthDict[contig_name]:.2f}"
+                                fields[fields.index(dp_tags[0])] = (
+                                    f"DP:f:{depthDict[contig_name]:.2f}"
+                                )
                             else:
                                 # If no "DP" tags exist, add a new one at the end
                                 fields.append(f"DP:f:{depthDict[contig_name]:.2f}")
@@ -318,13 +322,16 @@ def write_tags_to_file(infile, outfile, is_gfa, is_gzipped, depthDict):
                         if contig_name in depthDict:
                             depth = depthDict[contig_name]
                         else:
-                            logging.warning(f"No data found for sequence: {contig_name}")
+                            logging.warning(
+                                f"No data found for sequence: {contig_name}"
+                            )
                             depth = 0.0
                         output_file.write(
                             line.rstrip("\n") + " DP:f:" + f"{depth:.2f}" + "\n"
                         )
                     else:
                         output_file.write(line)
+
 
 def main():
     # Set up logging
@@ -334,7 +341,9 @@ def main():
 
     # Open tempdir
     # Note: use delete=False for testing.
-    with tempfile.TemporaryDirectory(prefix="temp_", dir=os.getcwd(), delete=True) as temp_dir:
+    with tempfile.TemporaryDirectory(
+        prefix="temp_", dir=os.getcwd(), delete=True
+    ) as temp_dir:
         logging.info(f"Open temp dir: {temp_dir}")
         # Check input files exist, correct format, and mm is accessible
         fasta_path, is_gfa, is_gzipped, outfile = validate_input(args, temp_dir)

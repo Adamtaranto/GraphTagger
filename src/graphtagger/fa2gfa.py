@@ -1,14 +1,15 @@
-from graphtagger.logs import init_logging
-from graphtagger.utils import is_valid_fasta_file
-
-from Bio import SeqIO
-
 from typing import Optional
 import argparse
 import gzip
 import hashlib
 import logging
 import os
+
+from Bio import SeqIO
+
+from graphtagger.logs import init_logging
+from graphtagger.utils import is_valid_fasta_file
+
 
 # gfa2fa
 # Support headers longer than 80 chars, no tags

@@ -1,6 +1,6 @@
 import hashlib
-import re
 import logging
+import re
 
 # Based on functions from BiopythonBio/SeqIO/GfaIO.py
 # By @michaelfm1211

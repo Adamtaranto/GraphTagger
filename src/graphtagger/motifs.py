@@ -1,8 +1,8 @@
+import re
+from typing import List, Tuple
 
 from graphtagger.seqOps import revComp
 
-import re
-from typing import List, Tuple
 
 def count_continuous_runs(dna_string: str) -> list:
     """
@@ -69,6 +69,7 @@ def construct_regex_pattern(motif_tuples: List[Tuple[str, int]]) -> str:
 
     return rf"{''.join(pattern_parts)}"
 
+
 def find_repeats_of_motif(text: str, motif: str) -> List[Tuple[int, int]]:
     """
     Find repeats of a motif in a given text.
@@ -80,7 +81,7 @@ def find_repeats_of_motif(text: str, motif: str) -> List[Tuple[int, int]]:
     Returns:
         List[Tuple[int, int]]: A list of tuples containing start and end coordinates of motif matches.
     """
-    pattern = re.compile(f'({motif})+')
+    pattern = re.compile(f"({motif})+")
     matches = pattern.finditer(text)
 
     coordinates = []
@@ -91,13 +92,16 @@ def find_repeats_of_motif(text: str, motif: str) -> List[Tuple[int, int]]:
 
     return coordinates
 
-def get_flexi_motifs(motif: str) -> Tuple[str,str]:
-    
+
+def get_flexi_motifs(motif: str) -> Tuple[str, str]:
     # Count consecutive runs of characters in a string
     motif_fwd_runs = count_continuous_runs(motif)
     # Repeat fro reverse motif
     motif_rev_runs = count_continuous_runs(revComp(motif))
-    
+
     # Return the regex pattern for the fwd and rev motifs that allows +/- 1 bp variation
     # in any nucleotide run >= 2 bp
-    return (construct_regex_pattern(motif_fwd_runs),construct_regex_pattern(motif_rev_runs))
+    return (
+        construct_regex_pattern(motif_fwd_runs),
+        construct_regex_pattern(motif_rev_runs),
+    )

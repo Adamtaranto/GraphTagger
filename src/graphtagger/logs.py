@@ -2,8 +2,8 @@ import logging
 import sys
 
 def init_logging():
-    fmt = "%(asctime)s | %(levelname)8s | %(module)s:%(lineno)s:%(funcName)20s() | %(message)s"
-    handler_sh = logging.StreamHandler(sys.stdout)
+    fmt = "%(asctime)s | %(levelname)s | %(module)s:%(lineno)s:%(funcName)s() | %(message)s"
+    handler_sh = logging.StreamHandler(sys.stderr)
     handler_sh.setFormatter(CustomFormatter(fmt))
     logging.basicConfig(format=fmt, level=logging.DEBUG, handlers=[handler_sh])
 class CustomFormatter(logging.Formatter):

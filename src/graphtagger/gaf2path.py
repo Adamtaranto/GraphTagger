@@ -1,5 +1,3 @@
-from graphtagger.logs import init_logging
-
 from typing import List, Tuple
 import argparse
 import logging
@@ -7,12 +5,15 @@ import os.path
 import re
 import sys
 
+from graphtagger.logs import init_logging
+
 # GAF format: https://github.com/lh3/gfatools/blob/master/doc/rGFA.md#the-graph-alignment-format-gaf
 # GFA Path format: https://gfa-spec.github.io/GFA-spec/GFA1.html#required-fields-5
 # Bandage paths: https://github.com/rrwick/Bandage/wiki/Graph-paths
 
 # TODO: add default outfile naming
 # TODO: Support input GFA file + append new paths to file end
+
 
 def count_symbols(input_string: str) -> int:
     """
@@ -25,9 +26,9 @@ def count_symbols(input_string: str) -> int:
         int: The number of instances of ">" or "<" in the string.
     """
     count = 0
-    
-    count = input_string.count('>') + input_string.count('<')
-    
+
+    count = input_string.count(">") + input_string.count("<")
+
     return count
 
 
@@ -42,7 +43,7 @@ def format_path_string(input_string: str) -> str:
         str: The formatted comma-delimited string.
     """
     # Use regular expression to find pairs of numbers and their preceding characters
-    matches = re.findall(r'([<>])([^<>]*)', input_string)
+    matches = re.findall(r"([<>])([^<>]*)", input_string)
 
     # Convert the matches to tuples with ">" replaced by "+" and "<" replaced by "-"
     result_tuples: List[Tuple[str, int]] = [
@@ -66,7 +67,7 @@ def process_gaf_file(input_file: str, output_file: str) -> None:
     # Initialize counters
     path_counter = 0
     line_counter = 0
-    
+
     # Open input and output files
     with open(input_file, "r") as infile, open(output_file, "w") as outfile:
         for line in infile:
@@ -75,7 +76,7 @@ def process_gaf_file(input_file: str, output_file: str) -> None:
                 continue
             # Count alignment line
             line_counter += 1
-            
+
             # Split line into columns
             columns = line.strip().split("\t")
 
@@ -83,30 +84,28 @@ def process_gaf_file(input_file: str, output_file: str) -> None:
             if len(columns) >= 12:
                 # Extract string in $6
                 path_string = columns[5]
-                
+
                 # Check if the string has at least 2 numbers
                 if count_symbols(path_string) >= 2:
-                    
                     # Format the string
                     formatted_string = format_path_string(path_string)
-                    
+
                     # Extract the read name from the query name column
                     # Split on whitespace in case there is nanopore metadata in the name
                     read_name = columns[0].strip().split()[0]
-                    
+
                     # Increment path counter
                     path_counter += 1
-                    
+
                     # Write new tab-delimited line to output file
                     outfile.write(
                         f"P\tPath_{path_counter}:{read_name}\t{formatted_string}\t*\n"
                     )
             else:
-                logging.warning(f'Skipping malformed line:\n{line}')
-    # Summary            
-    logging.info(f'Read {line_counter} GAF alignments.')
-    logging.info(f'Extracted {path_counter} paths with > 1 segment.')
-                        
+                logging.warning(f"Skipping malformed line:\n{line}")
+    # Summary
+    logging.info(f"Read {line_counter} GAF alignments.")
+    logging.info(f"Extracted {path_counter} paths with > 1 segment.")
 
 
 def getArgs():
@@ -148,9 +147,9 @@ def main():
     if not os.path.exists(args.input_gaf):
         logging.error(f"Input file '{args.input_gaf}' does not exist.")
         sys.exit(1)
-        
+
     # Make default outfile name
-    
+
     # Generate GFA path lines from GAF file
     process_gaf_file(
         args.input_gaf,
@@ -176,7 +175,7 @@ if __name__ == "__main__":
 # 11	int	Alignment block length
 # 12	int	Mapping quality (0-255; 255 for missing)
 # """
-# 
+#
 # """
 # Column	Field	Type	Regexp	Description
 # 1	RecordType	Character	P	Record type

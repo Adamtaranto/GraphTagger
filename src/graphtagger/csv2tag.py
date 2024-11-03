@@ -1,7 +1,3 @@
-from graphtagger.logs import init_logging
-from graphtagger.utils import is_valid_gfa_file
-from graphtagger.tagOps import _check_tag_values, _validate_tags
-
 from collections import defaultdict
 from typing import Dict, Tuple
 import argparse
@@ -10,6 +6,11 @@ import gzip
 import hashlib
 import logging
 import os.path
+
+from graphtagger.logs import init_logging
+from graphtagger.tagOps import _check_tag_values, _validate_tags
+from graphtagger.utils import is_valid_gfa_file
+
 
 # TODO: Report total number of segments with updated tags.
 # Maybe have update_tags() return True if any changes were made.

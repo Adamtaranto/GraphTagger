@@ -1,10 +1,3 @@
-from graphtagger.logs import init_logging
-from graphtagger.utils import is_valid_fasta_file
-from graphtagger.motifs import get_flexi_motifs, find_repeats_of_motif
-from graphtagger.seqOps import revComp
-
-from Bio import SeqIO
-
 from typing import List, Tuple, Optional
 import argparse
 import gzip
@@ -12,9 +5,18 @@ import logging
 import os.path
 import sys
 
+from Bio import SeqIO
+
+from graphtagger.logs import init_logging
+from graphtagger.motifs import get_flexi_motifs, find_repeats_of_motif
+from graphtagger.seqOps import revComp
+from graphtagger.utils import is_valid_fasta_file
+
+
 # TODO: Choose either "-" strand or rev comp "name" for output bed.
 # TODO: Support GFA as input format.
 # TODO: Make bed work with BandageNG
+
 
 def process_fasta(
     input_file: str, output_file: str, motif: str, minrep: Optional[int] = 1
@@ -113,7 +115,8 @@ def process_fasta(
 def getArgs():
     # Set up argparse
     parser = argparse.ArgumentParser(
-        description="Quick annotation of telomeric repeat runs in fasta file.", prog="tel2bed"
+        description="Quick annotation of telomeric repeat runs in fasta file.",
+        prog="tel2bed",
     )
     parser.add_argument(
         "-i",
