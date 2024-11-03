@@ -1,18 +1,14 @@
-name: graphtagger-dev
+name: graphtagger
 channels:
   - conda-forge
   - bioconda
-  - defaults
 dependencies:
-  - python >=3.12
   - bioconda::minimap2
-  #- nanoporetech::minimap2 # For apple silicon build
   - bioconda::mosdepth
   - pip
+  - python >=3.12
   - pip:
-      #- Ruff
-      #- black
       - Biopython
-      - setuptools_scm
-      - build
-      - twine
+      - hatch
+      - pytest
+      - Ruff
